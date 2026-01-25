@@ -7,6 +7,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/Dotnet.gitignore
 
+#Visual Studio temporary cache folder
+.vs
+
+#User specific files
+*.user
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -47,6 +53,8 @@ CodeCoverage/
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
+
+
 
 # NUnit
 *.VisualState.xml
