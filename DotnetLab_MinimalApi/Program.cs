@@ -1,3 +1,4 @@
+using DotnetLab_MinimalApi.Dto;
 using DotnetLab_MinimalApi.Endpoints;
 using DotnetLab_MinimalApi.Services;
 using Scalar.AspNetCore;
@@ -5,8 +6,11 @@ using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddSingleton<IWeatherForecastGetService, WeatherForecastGetService>();
-builder.Services.AddSingleton<IWeatherForecastPostService, WeatherForecastPostService>();
+builder.Services.AddSingleton<ICommunityMapper, CommunityMapper>();
+builder.Services.AddSingleton<ICommunityRepository, InMemoryCommunityRepository>();
+builder.Services.AddSingleton<ICommunityGetService, CommunityGetService>();
+builder.Services.AddSingleton<ICommunityPostService, CommunityPostService>();
+builder.Services.AddSingleton<ICommunityDeleteService, CommunityDeleteService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -22,7 +26,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.AddWeatherEndpoints();
+app.AddCommunityEndpoints();
 app.MapControllers();
 
 app.Run();
