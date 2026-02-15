@@ -2,20 +2,12 @@
 
 namespace DotnetLab_MinimalApi.Dto;
 
-public class CommunityDto
+public class CommunityDto(Guid id, DateOnly createdDate, string name, string description)
 {
-    public CommunityDto(Guid id, DateOnly createdDate, string name, string description)
-    {
-        Id = id;
-        CreatedDate = createdDate;
-        Name = name;
-        Description = description;
-    }
-
-    public Guid Id { get; init; }
-    public DateOnly CreatedDate { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
+    public Guid Id { get; init; } = id;
+    public DateOnly CreatedDate { get; set; } = createdDate;
+    public string Name { get; set; } = name;
+    public string Description { get; set; } = description;
 }
 
 public interface ICommunityMapper

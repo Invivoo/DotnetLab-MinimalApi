@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace DotnetLab_MinimalApi.Services;
 
 public class Community
@@ -16,7 +18,7 @@ public class Community
     public string Description { get; set; }
 }
 
-public record CommunityPostParameter(string Name, string Description);
+public record CommunityPostParameter([Required, MinLength(5)]string Name, [Required, MinLength(5)] string Description);
 
 public interface ICommunityGetService
 {
