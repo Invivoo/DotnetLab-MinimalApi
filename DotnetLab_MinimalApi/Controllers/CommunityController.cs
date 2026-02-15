@@ -6,14 +6,18 @@ namespace DotnetLab_MinimalApi.Controllers;
 
 [ApiController]
 [Route("controller/communities")]
-public class CommunityController(ICommunityMapper mapper, ICommunityGetService getService, ICommunityPostService postService, ICommunityDeleteService service) : ControllerBase
+public class CommunityController(ICommunityMapper mapper) : ControllerBase
 {
     [HttpGet]
-    public IEnumerable<CommunityDto> Get() => getService.Get().Select(x => mapper.FromDomain(x)).ToArray();
+    [ProducesResponseType<CommunityDto>(StatusCodes.Status200OK)]
+    public IActionResult Get([FromServices] ICommunityGetService getService) => Ok(getService.Get().Select(x => mapper.FromDomain(x)).ToArray());
 
     [HttpPost]
-    public CommunityDto Post([FromBody] CommunityPostParameter community) => mapper.FromDomain(postService.Post(community));
+    [ProducesResponseType<CommunityDto>(StatusCodes.Status201Created)]
+    public ActionResult<CommunityDto> Post([FromServices] ICommunityPostService postService, [FromBody] CommunityPostParameter community) => mapper.FromDomain(postService.Post(community));
 
     [HttpDelete("{id}")]
-    public void Delete(Guid id) => service.Delete(id);
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public void Delete([FromServices] ICommunityDeleteService service, Guid id) => service.Delete(id);
 }

@@ -14,6 +14,7 @@ builder.Services.AddSingleton<ICommunityDeleteService, CommunityDeleteService>()
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddValidation();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -27,6 +28,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.AddCommunityEndpoints();
+
 app.MapControllers();
 
 app.Run();
