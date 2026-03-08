@@ -23,6 +23,7 @@ public record CommunityPostParameter([Required, MinLength(5)]string Name, [Requi
 public interface ICommunityGetService
 {
     IEnumerable<Community> Get();
+    Community Get(Guid id);
 }
 public interface ICommunityPostService
 {
@@ -44,6 +45,7 @@ public interface ICommunityRepository
 public class CommunityGetService(ICommunityRepository repo) : ICommunityGetService
 {
     public IEnumerable<Community> Get() => repo.GetAll();
+    public Community Get(Guid id) => repo.Get(id);
 }
 
 public class CommunityPostService(ICommunityRepository repo) : ICommunityPostService
