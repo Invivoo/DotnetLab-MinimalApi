@@ -11,6 +11,8 @@ builder.Services.AddSingleton<ICommunityRepository, InMemoryCommunityRepository>
 builder.Services.AddSingleton<ICommunityGetService, CommunityGetService>();
 builder.Services.AddSingleton<ICommunityPostService, CommunityPostService>();
 builder.Services.AddSingleton<ICommunityDeleteService, CommunityDeleteService>();
+builder.Services.AddSingleton<ICommunityPatchService, CommunityPatchService>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

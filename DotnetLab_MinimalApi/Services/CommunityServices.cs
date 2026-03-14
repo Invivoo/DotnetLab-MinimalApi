@@ -1,24 +1,44 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using DotnetLab_MinimalApi.Dto;
+using Microsoft.AspNetCore.JsonPatch.SystemTextJson;
 
 namespace DotnetLab_MinimalApi.Services;
 
-public class Community
+public record Person(Guid Id, string FirstName, string LastName)
 {
-    public Community(Guid id, DateOnly createdDate, string name, string description)
-    {
-        Id = id;
-        CreatedDate = createdDate;
-        Name = name;
-        Description = description;
-    }
-
-    public Guid Id { get; init; }
-    public DateOnly CreatedDate { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
+  public Person(string firstName, string lastName) : this(Guid.CreateVersion7(), firstName, lastName)
+  {
+  }
 }
 
-public record CommunityPostParameter([Required, MinLength(5)]string Name, [Required, MinLength(5)] string Description);
+public record Expertise(Guid Id, string Name, string Description, Person[] Managers, Person[] Champions, Person[] Members)
+{
+    [JsonConstructor]
+    public Expertise(string name, string description) : this(Guid.CreateVersion7(), name, description, [], [], [])
+    {
+    }
+}
+
+public class Community(Guid id, DateOnly createdDate, string name, string description)
+{
+    public Guid Id { get; init; } = id;
+    public DateOnly CreatedDate { get; set; } = createdDate;
+    public string Name { get; set; } = name;
+    public string Description { get; set; } = description;
+    public Person Manager { get; set; } = new Person("Manager", "Example");
+    public Expertise[] Expertises { get; set; } = [];
+}
+
+/// <summary>
+/// $$ A post parameter $$
+/// </summary>
+/// <param name="Name"> $$ The name of the new Community.$$<default> test</default></param>
+/// <param name="Description">$$The description of the new community$$</param>
+public record CommunityPostParameter(
+    [property: Required, MinLength(5), DefaultValue("NewCommunityName")] string Name,
+    [property: Required, MinLength(5), DefaultValue("NewCommunityDescription")] string Description);
 
 public interface ICommunityGetService
 {
@@ -40,6 +60,11 @@ public interface ICommunityRepository
     void Add(Community community);
     Community Get(Guid id);
     void Delete(Guid id);
+}
+public interface ICommunityPatchService
+{
+    Community JsonPatch(Guid id, JsonPatchDocument<Community> community);
+    Community JsonMergePatch(Guid id, CommunityPatchParameter community);
 }
 
 public class CommunityGetService(ICommunityRepository repo) : ICommunityGetService
@@ -88,5 +113,25 @@ public class InMemoryCommunityRepository : ICommunityRepository
     {
         var community = Get(id);
         _communities.Remove(community);
+    }
+}
+
+public class CommunityPatchService(ICommunityRepository repo) : ICommunityPatchService
+{
+    public Community JsonPatch(Guid id, JsonPatchDocument<Community> community)
+    {
+        var existingCommunity = repo.Get(id);
+        community.ApplyTo(existingCommunity, jsonPatchError =>
+        {
+            throw new Exception(jsonPatchError.ErrorMessage);
+        });
+        return existingCommunity;
+    }
+
+    public Community JsonMergePatch(Guid id, CommunityPatchParameter community)
+    {
+        var existingCommunity = repo.Get(id);
+        community.ApplyTo(existingCommunity);
+        return existingCommunity;
     }
 }

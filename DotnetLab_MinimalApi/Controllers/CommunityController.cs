@@ -1,5 +1,7 @@
+using System.ComponentModel;
 using DotnetLab_MinimalApi.Dto;
 using DotnetLab_MinimalApi.Services;
+using Microsoft.AspNetCore.JsonPatch.SystemTextJson;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DotnetLab_MinimalApi.Controllers;
@@ -75,7 +77,85 @@ public class CommunityController(ICommunityMapper mapper) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult Delete([FromServices] ICommunityDeleteService service, Guid id)
     {
-        service.Delete(id);
-        return NoContent();
+        try
+        {
+            service.Delete(id);
+            return NoContent();
+        }
+        catch
+        {
+            return NotFound();
+        }
+    }
+
+    /// <summary>
+    /// ¤ Patch a community respecting the JSON Patch - RFC 6902 ¤
+    /// </summary>
+    /// <remarks> 
+    /// Patch a community respecting the respecting the [JSON Patch - RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902) ¤
+    /// 
+    /// Example of patch request:
+    /// 
+    ///     [
+    ///        {
+    ///             "op": "replace", 
+    ///             "path": "/Name",
+    ///             "value": "patched community name"
+    ///         },
+    ///         {
+    ///             "op": "add",
+    ///             "path": "/Manager/FirstName",
+    ///             "value": "Patched manager first name"
+    ///         },
+    ///         {
+    ///             "op": "add",
+    ///             "path": "/Expertises",
+    ///             "value": [{ "Name": "New Expertise from patch" }]
+    ///         }
+    ///     ]
+    /// </remarks>
+    /// <param name="patchService"></param>
+    /// <param name="id"></param>
+    /// <param name="patchRequest"></param>
+    /// <returns></returns>
+    [HttpPatch("{id}/json-patch")]
+    [Consumes("application/json-patch+json")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public ActionResult<Community> JsonPatch([FromServices] ICommunityPatchService patchService, Guid id, [FromBody] JsonPatchDocument<Community> patchRequest)
+    {
+        try
+        {
+            return Ok(patchService.JsonPatch(id, patchRequest));
+        }
+        catch
+        {
+            return NotFound();
+        }
+    }
+
+    /// <summary>
+    /// ¤ Patch a community respecting the JSON Merge Patch - RFC 7386 ¤
+    /// </summary>
+    /// <remarks>
+    /// Patch a community respecting the [JSON Merge Patch - RFC 7386](https://datatracker.ietf.org/doc/html/rfc7386) ¤
+    /// </remarks>
+    /// <param name="patchService"></param>
+    /// <param name="id"></param>
+    /// <param name="patchRequest"></param>
+    /// <returns></returns>
+    [HttpPatch("{id}/json-merge-patch")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public ActionResult<Community> JsonMergePatch([FromServices] ICommunityPatchService patchService, Guid id, [FromBody] CommunityPatchParameter patchRequest)
+    {
+        try
+        {
+            return Ok(patchService.JsonMergePatch(id, patchRequest)); 
+        }
+        catch
+        {
+            return NotFound();
+        }
     }
 }
