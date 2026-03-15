@@ -1,17 +1,15 @@
-using DotnetLab_MinimalApi.Dto;
-using DotnetLab_MinimalApi.Endpoints;
-using DotnetLab_MinimalApi.Services;
+using DataAccess.Contracts;
+using DataAccess.Repositories.InMemory;
+using Domain.Contracts;
+using Domain.Services;
+using Host.Endpoints;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddSingleton<ICommunityMapper, CommunityMapper>();
 builder.Services.AddSingleton<ICommunityRepository, InMemoryCommunityRepository>();
-builder.Services.AddSingleton<ICommunityGetService, CommunityGetService>();
-builder.Services.AddSingleton<ICommunityPostService, CommunityPostService>();
-builder.Services.AddSingleton<ICommunityDeleteService, CommunityDeleteService>();
-builder.Services.AddSingleton<ICommunityPatchService, CommunityPatchService>();
+builder.Services.AddSingleton<ICommunityService, CommunityService>();
 
 
 builder.Services.AddControllers();

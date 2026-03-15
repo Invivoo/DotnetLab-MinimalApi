@@ -1,3 +1,5 @@
 <Solution>
-  <Project Path="DotnetLab_MinimalApi/DotnetLab_MinimalApi.csproj" />
+  <Project Path="DataAccess/DataAccess.csproj" Id="7b40283c-63e6-41cb-a12b-7bce1240b7d7" />
+  <Project Path="Domain/Domain.csproj" Id="37a9c69e-1b60-449d-b08b-fae824997463" />
+  <Project Path="Host/Host.csproj" />
 </Solution>

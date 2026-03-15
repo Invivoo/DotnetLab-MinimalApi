@@ -1,11 +1,11 @@
-using System.ComponentModel;
-using DotnetLab_MinimalApi.Dto;
-using DotnetLab_MinimalApi.Services;
+using Domain.Contracts;
+using Domain.Helpers;
+using Host.Dto;
+using Host.Helpers;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.JsonPatch.SystemTextJson;
-using Microsoft.AspNetCore.Mvc;
 
-namespace DotnetLab_MinimalApi.Endpoints;
+namespace Host.Endpoints;
 
 internal static class CommunityEnpoints
 {
@@ -33,9 +33,9 @@ internal static class CommunityEnpoints
     /// <param name="service"></param>
     /// <param name="mapper"></param>
     /// <returns> The list of all the communities defined in Invivoo</returns>
-    public static Ok<CommunityDto[]> GetAll(ICommunityGetService service, ICommunityMapper mapper)
+    public static Ok<Community[]> GetAll(ICommunityService service)
     {
-        return TypedResults.Ok(service.Get().Select(x => mapper.FromDomain(x)).ToArray());
+        return TypedResults.Ok(service.Get().Select(ModelToDtoMapper.ToDto).ToArray());
     }
 
     /// <summary>
@@ -50,12 +50,11 @@ internal static class CommunityEnpoints
     /// </ul>
     /// </description>
     /// <param name="service">¤ This is not something that should appear in swagger¤</param>
-    /// <param name="mapper"></param>
     /// <param name="parameter"> ¤ Set the definition of the new community you whish to add ¤</param>
     /// <returns> The newly created community</returns>
-    public static CreatedAtRoute<CommunityDto> Post(ICommunityPostService service, ICommunityMapper mapper, CommunityPostParameter parameter) 
+    public static CreatedAtRoute<Community> Post(ICommunityService service, CommunityPostRequest parameter) 
     {
-        var result = mapper.FromDomain(service.Post(parameter));
+        var result = service.Post(parameter.ToModel()).ToDto();
         return TypedResults.CreatedAtRoute(result, "MinimalApi.GetCommunityById", new { id = result.Id });
     }
 
@@ -64,14 +63,13 @@ internal static class CommunityEnpoints
     /// </summary>
     /// <description>¤ Here we can add additional information for the Get method.¤</description>
     /// <param name="service"></param>
-    /// <param name="mapper"></param>
     /// <param name="id"></param>
     /// <returns>The requested community details.</returns>
-    public static Results<Ok<CommunityDto>, NotFound> Get(ICommunityGetService service, ICommunityMapper mapper, Guid id)
+    public static Results<Ok<Community>, NotFound> Get(ICommunityService service, Guid id)
     {
         try
         {
-            return TypedResults.Ok(mapper.FromDomain(service.Get(id)));
+            return TypedResults.Ok(service.Get(id).ToDto());
         }
         catch
         {
@@ -86,7 +84,7 @@ internal static class CommunityEnpoints
     /// <param name="service"></param>
     /// <param name="id"></param>
     /// <returns>No content</returns>
-    public static Results<NotFound, NoContent> Delete(ICommunityDeleteService service, Guid id)
+    public static Results<NotFound, NoContent> Delete(ICommunityService service, Guid id)
     {
         try
         {
@@ -126,15 +124,15 @@ internal static class CommunityEnpoints
     ///         }
     ///     ]
     /// </remarks>
-    /// <param name="patchService"></param>
+    /// <param name="service"></param>
     /// <param name="id"></param>
     /// <param name="patchRequest"></param>
     /// <returns></returns>
-    public static Results<Ok<Community>, NotFound> JsonPatch(ICommunityPatchService patchService, Guid id, JsonPatchDocument<Community> patchRequest)
+    public static Results<Ok<Community>, NotFound> JsonPatch(ICommunityService service, Guid id, JsonPatchDocument<Community> patchRequest)
     {
         try
         {
-            return TypedResults.Ok(patchService.JsonPatch(id, patchRequest));
+            return TypedResults.Ok(service.JsonPatch(id, patchRequest.ToModel()).ToDto());
         }
         catch
         {
@@ -148,15 +146,15 @@ internal static class CommunityEnpoints
     /// <remarks>
     /// Patch a community respecting the [JSON Merge Patch - RFC 7386](https://datatracker.ietf.org/doc/html/rfc7386) ¤
     /// </remarks>
-    /// <param name="patchService"></param>
+    /// <param name="service"></param>
     /// <param name="id"></param>
     /// <param name="patchRequest"></param>
     /// <returns></returns>
-    public static Results<Ok<Community>, NotFound> JsonMergePatch(ICommunityPatchService patchService, Guid id, CommunityPatchParameter patchRequest)
+    public static Results<Ok<Community>, NotFound> JsonMergePatch(ICommunityService service, Guid id, CommunityPatchRequest patchRequest)
     {
         try
         {
-            return TypedResults.Ok(patchService.JsonMergePatch(id, patchRequest));
+            return TypedResults.Ok(service.JsonMergePatch(id, patchRequest.GetPropertiesToUpdate().ToModel()).ToDto());
         }
         catch
         {

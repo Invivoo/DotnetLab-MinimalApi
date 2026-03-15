@@ -1,25 +1,26 @@
-using System.ComponentModel;
-using DotnetLab_MinimalApi.Dto;
-using DotnetLab_MinimalApi.Services;
+using Domain.Contracts;
+using Domain.Helpers;
+using Host.Dto;
+using Host.Helpers;
 using Microsoft.AspNetCore.JsonPatch.SystemTextJson;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DotnetLab_MinimalApi.Controllers;
+namespace Host.Controllers;
 
 [ApiController]
 [Tags("Controller")]
 [Route("controller/communities")]
-public class CommunityController(ICommunityMapper mapper) : ControllerBase
+public class CommunityController: ControllerBase
 {
     /// <summary>
     /// ¤ Get all communities ¤
     /// </summary>
     /// <description>¤ Here we can add additional information for the GetAll method.¤</description>
-    /// <param name="getService"></param>
+    /// <param name="service"></param>
     /// <returns> The list of all the communities defined in Invivoo</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public ActionResult<CommunityDto[]> GetAll([FromServices] ICommunityGetService getService) => Ok(getService.Get().Select(x => mapper.FromDomain(x)).ToArray());
+    public ActionResult<Community[]> GetAll([FromServices] ICommunityService service) => Ok(service.Get().Select(ModelToDtoMapper.ToDto).ToArray());
 
     /// <summary>
     /// ¤ Create a new community ¤
@@ -32,14 +33,14 @@ public class CommunityController(ICommunityMapper mapper) : ControllerBase
     /// <li>Description should have at least 5 characters </li>
     /// </ul>
     /// </description>
-    /// <param name="postService">¤ This is not something that should appear in swagger¤</param>
-    /// <param name="parameter"> ¤ Set the definition of the new community you whish to add ¤</param>
+    /// <param name="service">¤ This is not something that should appear in swagger¤</param>
+    /// <param name="request"> ¤ Set the definition of the new community you whish to add ¤</param>
     /// <returns> The newly created community</returns>
     [HttpPost]
-    [ProducesResponseType<CommunityDto>(StatusCodes.Status201Created)]
-    public ActionResult<CommunityDto> Post([FromServices] ICommunityPostService postService, [FromBody] CommunityPostParameter parameter)
+    [ProducesResponseType<Community>(StatusCodes.Status201Created)]
+    public ActionResult<Community> Post([FromServices] ICommunityService service, [FromBody] CommunityPostRequest request)
     {
-        var result = mapper.FromDomain(postService.Post(parameter));
+        var result = service.Post(request.ToModel()).ToDto();
         return CreatedAtRoute("Controller.GetCommunityById", new { id = result.Id }, result);
     }
 
@@ -47,17 +48,17 @@ public class CommunityController(ICommunityMapper mapper) : ControllerBase
     /// ¤ Get a community by its identifier ¤
     /// </summary>
     /// <description>¤ Here we can add additional information for the Get method.¤</description>
-    /// <param name="getService"></param>
+    /// <param name="service"></param>
     /// <param name="id"></param>
     /// <returns>The requested community details.</returns>
     [HttpGet("{id}", Name = "Controller.GetCommunityById")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<CommunityDto> Get([FromServices] ICommunityGetService getService, Guid id)
+    public ActionResult<Community> Get([FromServices] ICommunityService service, Guid id)
     {
         try
         {
-            return Ok(mapper.FromDomain(getService.Get(id)));
+            return Ok(service.Get(id).ToDto());
         }
         catch
         {
@@ -75,7 +76,7 @@ public class CommunityController(ICommunityMapper mapper) : ControllerBase
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult Delete([FromServices] ICommunityDeleteService service, Guid id)
+    public ActionResult Delete([FromServices] ICommunityService service, Guid id)
     {
         try
         {
@@ -114,7 +115,7 @@ public class CommunityController(ICommunityMapper mapper) : ControllerBase
     ///         }
     ///     ]
     /// </remarks>
-    /// <param name="patchService"></param>
+    /// <param name="service"></param>
     /// <param name="id"></param>
     /// <param name="patchRequest"></param>
     /// <returns></returns>
@@ -122,11 +123,11 @@ public class CommunityController(ICommunityMapper mapper) : ControllerBase
     [Consumes("application/json-patch+json")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<Community> JsonPatch([FromServices] ICommunityPatchService patchService, Guid id, [FromBody] JsonPatchDocument<Community> patchRequest)
+    public ActionResult<Community> JsonPatch([FromServices] ICommunityService service, Guid id, [FromBody] JsonPatchDocument<Community> patchRequest)
     {
         try
         {
-            return Ok(patchService.JsonPatch(id, patchRequest));
+            return Ok(service.JsonPatch(id, patchRequest.ToModel()).ToDto());
         }
         catch
         {
@@ -140,18 +141,18 @@ public class CommunityController(ICommunityMapper mapper) : ControllerBase
     /// <remarks>
     /// Patch a community respecting the [JSON Merge Patch - RFC 7386](https://datatracker.ietf.org/doc/html/rfc7386) ¤
     /// </remarks>
-    /// <param name="patchService"></param>
+    /// <param name="service"></param>
     /// <param name="id"></param>
     /// <param name="patchRequest"></param>
     /// <returns></returns>
     [HttpPatch("{id}/json-merge-patch")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<Community> JsonMergePatch([FromServices] ICommunityPatchService patchService, Guid id, [FromBody] CommunityPatchParameter patchRequest)
+    public ActionResult<Community> JsonMergePatch([FromServices] ICommunityService service, Guid id, [FromBody] CommunityPatchRequest patchRequest)
     {
         try
         {
-            return Ok(patchService.JsonMergePatch(id, patchRequest)); 
+            return Ok(service.JsonMergePatch(id, patchRequest.GetPropertiesToUpdate().ToModel())); 
         }
         catch
         {
