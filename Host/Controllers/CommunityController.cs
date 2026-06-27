@@ -2,6 +2,7 @@ using Domain.Contracts;
 using Domain.Helpers;
 using Host.Dto;
 using Host.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch.SystemTextJson;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +11,7 @@ namespace Host.Controllers;
 [ApiController]
 [Tags("Controller")]
 [Route("controller/communities")]
+[Authorize]
 public class CommunityController: ControllerBase
 {
     /// <summary>

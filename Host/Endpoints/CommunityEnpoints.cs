@@ -11,7 +11,7 @@ internal static class CommunityEnpoints
 {
     public static void AddCommunityEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("minimal-api/communities").WithTags("Minimal Api");
+        var group = app.MapGroup("minimal-api/communities").WithTags("Minimal Api").RequireAuthorization();
 
         group.MapGet("", GetAll);
 

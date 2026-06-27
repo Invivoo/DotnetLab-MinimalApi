@@ -1,9 +1,83 @@
-@DotnetLab_MinimalApi_HostAddress = http://localhost:5269
+### Me
 
-GET {{DotnetLab_MinimalApi_HostAddress}}/controller/weatherforecast/
-Accept: application/json
+GET {{HostAddress}}/users/me
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI3TFI0QWZGSmJxR1pGbzNoQ3ZGOFlBZFVyNmRqSXV4MVZSSXk0NjlaNXU4In0.eyJleHAiOjE3ODE4NjY0NzgsImlhdCI6MTc4MTg2NjE3OCwiYXV0aF90aW1lIjoxNzgxODY2MTc1LCJqdGkiOiJvbnJ0YWM6ZTA1OGViNDQtMTc4ZC1mMGE5LTU3Y2ItMjNjODhmYTYyMDIyIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9ndF9kb3RuZXRfbGFiIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6IjE1YTE3ZTY4LWMwZmItNDkwYi1iMzQ0LTJiNTQ2N2RhOTViMSIsInR5cCI6IkJlYXJlciIsImF6cCI6IkdULURvdG5ldExhYi1NaW5pbWFsQXBpIiwic2lkIjoibmVYUDdxenVNb2VFU0R6VFVnTmlXVkFGIiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwczovL2xvY2FsaG9zdDo3MDI3IiwiaHR0cHM6Ly93d3cua2V5Y2xvYWsub3JnIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJkZWZhdWx0LXJvbGVzLWd0X2RvdG5ldF9sYWIiLCJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJvcGVuaWQgZW1haWwgcHJvZmlsZSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6IlRoaWJhdWx0IFJVQ0hPTiIsInByZWZlcnJlZF91c2VybmFtZSI6Imd0LXRpYm8iLCJnaXZlbl9uYW1lIjoiVGhpYmF1bHQiLCJmYW1pbHlfbmFtZSI6IlJVQ0hPTiIsImVtYWlsIjoidGhpYmF1bHQucnVjaG9uQGludml2b28uY29tIn0.Ie9wpAvQYJeoFQO7yEDb6VdSp6g2xelNfx80h8V1FFtsKyVDQLHf6kb79OLuU06B03n5pu7dxIzU-6teQtC2PiosRiLnpnWgVwsScudHYd1REFA8Z5-uUoLyiNx3hBZFhYDjVlYIp2Ofl0RNXOU9bPpJeJpJ7UMdSkG1hzvPrdEW-GnRUnhl3doNGSA_9RyBOW8lJ1-vtHOyDKWvLZNQnwD3f_qwAilSe4_N3aF_r9ExIYBsdVTZPf4Woy8qjP38mhj-lPLnnFdOLlOsgKe6oiSOro_z9wtYrGe7C05-K2QRW5fZFSnBBrk8pQ65KD9MVemGDQ0gZhrUItg1q7IiHg
+
+
 
 ###
-GET {{DotnetLab_MinimalApi_HostAddress}}/minimal-api/weatherforecast/
+
+### Get All
+
+GET {{BaseAddress}}/communities
 Accept: application/json
+
+### Add a community
+# @name newCommunityToBeDeleted
+POST {{BaseAddress}}/communities
+Content-Type: application/json
+
+{
+  "name":"A Short lived community",
+  "description": "A New community that will be deleted"
+}
+
+### Get New Community that will be deleted
+
+GET {{BaseAddress}}/communities/{{newCommunityToBeDeleted.response.body.$.id}}
+Accept: application/json
+
+### Delete By Id
+
+DELETE {{BaseAddress}}/communities/{{newCommunityToBeDeleted.response.body.$.id}}
+
+### Add a community
+# @name newCommunity
+POST {{BaseAddress}}/communities
+Content-Type: application/json
+
+{
+  "name":"A New Community",
+  "description": "A New community for the patches"
+}
+
+
+### Get By Id
+
+GET {{BaseAddress}}/communities/{{newCommunity.response.body.$.id}}
+Accept: application/json
+
+### Json Merge Patch
+
+PATCH {{BaseAddress}}/communities/{{newCommunity.response.body.$.id}}/json-merge-patch
+Content-Type: application/json
+
+{
+  "name":"modified from merge patch"
+}
+
+### Json Patch
+
+PATCH {{BaseAddress}}/communities/{{newCommunity.response.body.$.id}}/json-patch
+Content-Type: application/json-patch+json
+
+[
+  {
+    "op": "replace",
+    "path": "/Name",
+    "value": "patched community name"
+  },
+  {
+    "op": "add",
+    "path": "/Manager/FirstName",
+    "value": "Patched manager first name"
+  },
+  {
+    "op": "add",
+    "path": "/Expertises",
+    "value": [{ "Name": "New Expertise from patch" }]
+  }
+]
+
+###
 
